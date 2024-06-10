@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  users-ms:
+    build: ./ms-users
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./ms-users/src:/usr/src/app/src
+    command: npm run start:dev
+    networks:
+      - nest-grpc-network
+
+  client-gateway:
+    build: ./gateway
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:8000
+    volumes:
+      - ./gateway/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - GRPC_SERVER_URL=users-ms:50051
+      - PORT=8000
+    networks:
+      - nest-grpc-network
+
+  
+networks:
+  nest-grpc-network:
+    driver: bridge
